@@ -13,14 +13,18 @@ const responseSchema = {
     properties: {
         businessNumber: {
             type: Type.STRING,
-            description: "The 8-digit business number (統一編號).",
+            description: "買方的 8 位數統一編號。",
         },
         invoiceDate: {
             type: Type.STRING,
-            description: "The invoice issue date in YYYY/MM/DD format (開立日期).",
+            description: "發票開立日期，格式為 YYYY-MM-DD。",
+        },
+        buyerName: {
+            type: Type.STRING,
+            description: "買方的公司全名。",
         },
     },
-    required: ["businessNumber", "invoiceDate"],
+    required: ["businessNumber", "invoiceDate", "buyerName"],
 };
 
 export const extractInvoiceInfo = async (base64Image: string): Promise<InvoiceData> => {
@@ -33,7 +37,7 @@ export const extractInvoiceInfo = async (base64Image: string): Promise<InvoiceDa
         };
 
         const textPart = {
-            text: "這是一張台灣的電子發票。請辨識並回傳 JSON 格式的統一編號和開立日期。統一編號是8位數字。開立日期請使用 YYYY/MM/DD 格式。",
+            text: "這是一張台灣的電子發票證明聯。請辨識並回傳 JSON 格式的資訊。\n- 買方統一編號 (businessNumber): '買方' 欄位旁邊的 8 位數字。\n- 買方名稱 (buyerName): '買方' 欄位對應的公司名稱。\n- 發票日期 (invoiceDate): 在 '電子發票證明聯' 標題下方的日期，並使用 YYYY-MM-DD 格式。",
         };
 
         const response = await ai.models.generateContent({
@@ -48,7 +52,7 @@ export const extractInvoiceInfo = async (base64Image: string): Promise<InvoiceDa
         const jsonString = response.text.trim();
         const data = JSON.parse(jsonString);
         
-        if (data.businessNumber && data.invoiceDate) {
+        if (data.businessNumber && data.invoiceDate && data.buyerName) {
             return data as InvoiceData;
         } else {
             throw new Error("從 AI 收到的資料結構無效。");

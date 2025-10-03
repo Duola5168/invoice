@@ -1,4 +1,3 @@
-
 export enum FileStatus {
   Idle = 'idle',
   Processing = 'processing',
@@ -9,6 +8,7 @@ export enum FileStatus {
 export interface InvoiceData {
   businessNumber: string;
   invoiceDate: string;
+  buyerName: string;
 }
 
 export interface ProcessedFile {

@@ -1,11 +1,11 @@
 import React, { useState, useCallback } from 'react';
 
 interface FileUploaderProps {
-  onFilesAdded: (files: File[]) => void;
+  onFileAdded: (file: File) => void;
   disabled: boolean;
 }
 
-const FileUploader: React.FC<FileUploaderProps> = ({ onFilesAdded, disabled }) => {
+const FileUploader: React.FC<FileUploaderProps> = ({ onFileAdded, disabled }) => {
   const [isDragging, setIsDragging] = useState(false);
 
   const handleDragEnter = useCallback((e: React.DragEvent<HTMLDivElement>) => {
@@ -31,21 +31,19 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onFilesAdded, disabled }) =
     setIsDragging(false);
     if (disabled) return;
 
-    // FIX: Explicitly type `file` as `File` to resolve TypeScript error.
-    const files = Array.from(e.dataTransfer.files).filter((file: File) => file.type === 'application/pdf');
-    if (files.length > 0) {
-      onFilesAdded(files);
+    const droppedFile = e.dataTransfer.files?.[0];
+    if (droppedFile && droppedFile.type === 'application/pdf') {
+      onFileAdded(droppedFile);
     }
-  }, [onFilesAdded, disabled]);
+  }, [onFileAdded, disabled]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      // FIX: Explicitly type `file` as `File` to resolve TypeScript error.
-      const files = Array.from(e.target.files).filter((file: File) => file.type === 'application/pdf');
-      if (files.length > 0) {
-        onFilesAdded(files);
-      }
+    const selectedFile = e.target.files?.[0];
+    if (selectedFile && selectedFile.type === 'application/pdf') {
+      onFileAdded(selectedFile);
     }
+    // Reset input value to allow uploading the same file again
+    e.target.value = '';
   };
 
   const baseClasses = "relative block w-full rounded-lg border-2 border-dashed p-12 text-center transition-colors duration-200";
@@ -66,12 +64,12 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onFilesAdded, disabled }) =
         </svg>
 
       <span className="mt-2 block text-sm font-semibold text-slate-900">
-        將 PDF 發票拖放到此處
+        將一份 PDF 發票拖放到此處
       </span>
       <span className="mt-1 block text-xs text-slate-500">或</span>
       <label htmlFor="file-upload" className={`mt-2 font-semibold text-indigo-600 ${disabled ? 'cursor-not-allowed text-indigo-300' : 'cursor-pointer hover:text-indigo-500'}`}>
         <span>從您的裝置選擇檔案</span>
-        <input id="file-upload" name="file-upload" type="file" className="sr-only" multiple accept=".pdf" onChange={handleFileChange} disabled={disabled} />
+        <input id="file-upload" name="file-upload" type="file" className="sr-only" accept=".pdf" onChange={handleFileChange} disabled={disabled} />
       </label>
     </div>
   );

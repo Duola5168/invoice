@@ -1,9 +1,10 @@
 import React from 'react';
-import type { ProcessedFile } from '../types';
+import type { ProcessedFile, InvoiceData } from '../types';
 import { FileStatus } from '../types';
 
 interface FileItemProps {
   file: ProcessedFile;
+  onDataChange: (fileId: string, field: keyof InvoiceData, value: string) => void;
 }
 
 const StatusIndicator: React.FC<{ status: FileStatus }> = ({ status }) => {
@@ -41,17 +42,47 @@ const StatusIndicator: React.FC<{ status: FileStatus }> = ({ status }) => {
   }
 };
 
-const FileItem: React.FC<FileItemProps> = ({ file }) => {
+const FileItem: React.FC<FileItemProps> = ({ file, onDataChange }) => {
   return (
     <li className="p-4 bg-white border border-slate-200 rounded-lg shadow-sm">
       <div className="flex items-start justify-between space-x-4">
         <div className="min-w-0 flex-1">
           <p className="text-sm font-medium text-slate-900 truncate">{file.originalFile.name}</p>
           {file.status === FileStatus.Success && file.extractedData && (
-            <div className="mt-2 text-xs text-slate-500 space-y-1">
-              <p><span className="font-semibold">統一編號：</span> {file.extractedData.businessNumber}</p>
-              <p><span className="font-semibold">開立日期：</span> {file.extractedData.invoiceDate}</p>
-              <p className="text-green-700 font-medium"><span className="font-semibold">新檔名：</span> {file.newName}</p>
+            <div className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-x-4 gap-y-3 text-xs">
+              <div className="sm:col-span-3">
+                <label htmlFor={`buyerName-${file.id}`} className="block text-xs font-medium text-slate-600">買方</label>
+                <input 
+                  type="text" 
+                  id={`buyerName-${file.id}`}
+                  value={file.extractedData.buyerName}
+                  onChange={(e) => onDataChange(file.id, 'buyerName', e.target.value)}
+                  className="mt-1 block w-full px-2 py-1.5 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+                />
+              </div>
+              <div>
+                <label htmlFor={`businessNumber-${file.id}`} className="block text-xs font-medium text-slate-600">統一編號</label>
+                <input 
+                  type="text" 
+                  id={`businessNumber-${file.id}`}
+                  value={file.extractedData.businessNumber}
+                  onChange={(e) => onDataChange(file.id, 'businessNumber', e.target.value)}
+                  className="mt-1 block w-full px-2 py-1.5 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+                />
+              </div>
+              <div>
+                <label htmlFor={`invoiceDate-${file.id}`} className="block text-xs font-medium text-slate-600">日期</label>
+                <input 
+                  type="text" 
+                  id={`invoiceDate-${file.id}`}
+                  value={file.extractedData.invoiceDate}
+                  onChange={(e) => onDataChange(file.id, 'invoiceDate', e.target.value)}
+                  className="mt-1 block w-full px-2 py-1.5 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+                />
+              </div>
+               <div className="sm:col-span-3 pt-1">
+                 <p className="text-green-800 bg-green-50 rounded-md px-2 py-1.5 font-medium text-sm"><span className="font-semibold text-slate-600">新檔名：</span> {file.newName}</p>
+               </div>
             </div>
           )}
           {file.status === FileStatus.Error && (
