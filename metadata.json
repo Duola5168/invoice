@@ -1,0 +1,5 @@
+{
+  "name": "智慧發票處理器",
+  "description": "一個智慧化的網頁應用程式，使用 AI 辨識台灣的 PDF 電子發票，自動以統一編號和開立日期重新命名檔案，並準備透過電子郵件寄送。",
+  "requestFramePermissions": []
+}
